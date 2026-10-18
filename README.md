@@ -45,6 +45,16 @@ Unpack it into a folder of its own (for example in Documents) and start
 when Windows or macOS warns about an unknown developer. Nothing else needs
 to be installed.
 
+> **macOS: run this once before the first start**, or the game will not
+> work (the app is not signed by Apple, so macOS blocks it and keeps it in
+> quarantine). In Terminal, in the folder you unpacked:
+>
+> ```sh
+> xattr -cr LEGO\ Racers\ 2.app
+> ```
+>
+> (Or type `xattr -cr ` and drag the app into the Terminal window.)
+
 ## First start: copying the game from your CD
 
 The packages contain no game files. The first time the game starts, a

@@ -25,9 +25,20 @@ Setting up
 1. Unpack the download into a folder of its own, for example in
    Documents. The game keeps its files in a "game" folder next to itself.
 
-   macOS: drag "LEGO Racers 2" out of the unpacked folder into the folder
-   you want to keep it in (macOS only lets apps that were moved save files
-   next to themselves).
+   macOS - IMPORTANT: the game will not work until you run one command,
+   because it is not signed by Apple. Open Terminal (Applications >
+   Utilities > Terminal), type the following with a space at the end,
+   but do not press Enter yet:
+
+       xattr -cr
+
+   Then drag the LEGO Racers 2 app from the unpacked folder into the
+   Terminal window (this types its location) and press Enter. The full
+   command looks like:
+
+       xattr -cr LEGO\ Racers\ 2.app
+
+   Do this again if you download the game again.
 
 2. Start the game: lr2.exe on Windows, LEGO Racers 2 on macOS, lr2 on
    Linux.
@@ -48,9 +59,9 @@ click "More info" and then "Run anyway". On Windows on ARM the game needs
 OpenGL 3.3; if it does not start, install the "OpenCL, OpenGL, and Vulkan
 Compatibility Pack" from the Microsoft Store.
 
-macOS may say the app "cannot be opened" because it is not from an
-identified developer: open System Settings > Privacy & Security, scroll
-down and click "Open Anyway" next to the message about LEGO Racers 2.
+macOS: if it says the app "is damaged", "cannot be opened" or "cannot
+be verified", or the game cannot save, you skipped the xattr command in
+step 1: run it, then open the app again.
 
 The HD texture pack is built in. To play with the original textures, start
 the game with --no-hd (see below).

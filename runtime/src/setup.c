@@ -351,9 +351,10 @@ bool setup_run(const char *src, const char *prog_dir) {
         char text[1600];
         if (translocated)
             SDL_snprintf(text, sizeof text,
-                         "macOS started LEGO Racers 2 from a temporary place where it cannot save "
-                         "anything.\n\nClose this window, drag the LEGO Racers 2 app into another folder "
-                         "(for example a new folder in Documents), and open it from there.");
+                         "macOS keeps LEGO Racers 2 in quarantine, so it cannot save anything.\n\n"
+                         "Close this window, open Terminal, type: xattr -cr\n"
+                         "and a space, drag the LEGO Racers 2 app into the Terminal window, "
+                         "press Enter, and open the game again.");
         else
             SDL_snprintf(text, sizeof text,
                      "LEGO Racers 2 needs the files from your own CD.\n\n"
