@@ -1,0 +1,162 @@
+openjdk version "21.0.12.1" 2026-08-18
+OpenJDK Runtime Environment (build 21.0.12.1+1-1-24.04.4-Ubuntu)
+OpenJDK 64-Bit Server VM (build 21.0.12.1+1-1-24.04.4-Ubuntu, mixed mode)
+INFO  Using log config file: jar:file:/home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Framework/Generic/lib/Generic.jar!/generic.log4j.xml (LoggingInitialization)  
+INFO  Using log file: /home/daniel/.config/ghidra/ghidra_12.1.4_PUBLIC/application.log (LoggingInitialization)  
+INFO  Loading user preferences: /home/daniel/.config/ghidra/ghidra_12.1.4_PUBLIC/preferences (Preferences)  
+INFO  Searching for classes... (ClassSearcher)  
+INFO  Class search complete (700 ms) (ClassSearcher)  
+INFO  Initializing SSL Context (DefaultSSLContextInitializer)  
+INFO  Initializing Random Number Generator... (SecureRandomFactory)  
+INFO  Random Number Generator initialization complete: NativePRNGNonBlocking (SecureRandomFactory)  
+INFO  Trust manager disabled, cacerts have not been set (DefaultTrustManagerFactory)  
+INFO  Headless startup complete (1637 ms) (AnalyzeHeadless)  
+INFO  Class searcher loaded 59 extension points (20 false positives) (ClassSearcher)  
+INFO  HEADLESS Script Paths:
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Features/FileFormats/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Processors/Atmel/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Features/VersionTracking/ghidra_scripts
+    /home/daniel/legoracers/tools/ghidra
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Features/PyGhidra/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Features/DecompilerDependent/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Debug/Debugger-rmi-trace/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Features/Base/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Processors/DATA/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Features/SwiftDemangler/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Features/WildcardAssembler/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Features/SystemEmulation/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Features/BSim/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Features/GnuDemangler/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Features/BytePatterns/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Processors/JVM/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Debug/Debugger/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Processors/PIC/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Processors/8051/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Features/FunctionID/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Features/MicrosoftCodeAnalyzer/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Features/PDB/ghidra_scripts
+    /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Features/Decompiler/ghidra_scripts (HeadlessAnalyzer)  
+INFO  HEADLESS: execution starts (HeadlessAnalyzer)  
+INFO  Creating project: /home/daniel/legoracers/build/ghidra/lr2 (HeadlessAnalyzer)  
+INFO  Creating project: /home/daniel/legoracers/build/ghidra/lr2 (DefaultProject)  
+INFO  REPORT: Processing input files:  (HeadlessAnalyzer)  
+INFO       project: /home/daniel/legoracers/build/ghidra/lr2 (HeadlessAnalyzer)  
+INFO  IMPORTING: file:///home/daniel/legoracers/orig/LEGORacers2.exe (HeadlessAnalyzer)  
+INFO  Using Loader: Portable Executable (PE) (ProgramLoader)  
+INFO  Using Language/Compiler: x86:LE:32:default:windows (ProgramLoader)  
+INFO  Using Library Search Path: [., /bin, /lib, /lib64, /lib/x86_64-linux-gnu, /lib/aarch64-linux-gnu, /usr/bin, /usr/lib, /usr/X11R6/bin, /usr/X11R6/lib, /usr/java/packages/lib, /usr/lib/x86_64-linux-gnu/jni, /usr/lib/x86_64-linux-gnu, /usr/lib/jni] (ProgramLoader)  
+INFO  Additional info:
+Loading file:///home/daniel/legoracers/orig/LEGORacers2.exe?MD5=66763acbea032cb201491c051fda1eab...
+------------------------------------------------
+
+Searching 9 paths for library ADVAPI32.DLL...
+Library not found.
+------------------------------------------------
+
+Searching 9 paths for library D3D8.DLL...
+Library not found.
+------------------------------------------------
+
+Searching 9 paths for library DINPUT8.DLL...
+Library not found.
+------------------------------------------------
+
+Searching 9 paths for library DSOUND.DLL...
+Library not found.
+------------------------------------------------
+
+Searching 9 paths for library GDI32.DLL...
+Library not found.
+------------------------------------------------
+
+Searching 9 paths for library KERNEL32.DLL...
+Library not found.
+------------------------------------------------
+
+Searching 9 paths for library OLE32.DLL...
+Library not found.
+------------------------------------------------
+
+Searching 9 paths for library SHFOLDER.DLL...
+Library not found.
+------------------------------------------------
+
+Searching 9 paths for library USER32.DLL...
+Library not found.
+------------------------------------------------
+
+Searching 9 paths for library WINMM.DLL...
+Library not found.
+------------------------------------------------
+
+Linking the External Programs of 'LEGORacers2.exe' to imported libraries...
+  [KERNEL32.DLL] -> not found in project
+  [SHFOLDER.DLL] -> not found in project
+  [USER32.DLL] -> not found in project
+  [ADVAPI32.DLL] -> not found in project
+  [OLE32.DLL] -> not found in project
+  [GDI32.DLL] -> not found in project
+  [WINMM.DLL] -> not found in project
+  [D3D8.DLL] -> not found in project
+  [DINPUT8.DLL] -> not found in project
+  [DSOUND.DLL] -> not found in project
+------------------------------------------------
+
+ (ProgramLoader)  
+INFO  IMPORTING: Loaded 0 additional files (HeadlessAnalyzer)  
+INFO  ANALYZING all memory and code: file:///home/daniel/legoracers/orig/LEGORacers2.exe (HeadlessAnalyzer)  
+WARN  Ignoring leading '_' chars on no-return name '___raise_securityfailure' specified in file: /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Features/Base/data/PEFunctionsThatDoNotReturn (NoReturnFunctionAnalyzer)  
+WARN  Ignoring leading '_' chars on no-return name '___report_rangecheckfailure' specified in file: /home/daniel/ghidra_12.1.4_PUBLIC/Ghidra/Features/Base/data/PEFunctionsThatDoNotReturn (NoReturnFunctionAnalyzer)  
+INFO  Skipping PDB processing: missing PDB information in program metadata (PdbUniversalAnalyzer)  
+INFO  Packed database cache: /var/tmp/daniel-ghidra/packed-db-cache (PackedDatabaseCache)  
+ERROR Invalid PNG data at 00539ac4 (PngDataType)  
+INFO  Applied data type archive: windows_vs12_32 (ApplyDataArchiveAnalyzer)  
+INFO  Applied data type archive: windows_vs12_32 (ApplyDataArchiveAnalyzer)  
+INFO  -----------------------------------------------------
+    ASCII Strings                              0.333 secs
+    Apply Data Archives                        0.139 secs
+    Call Convention ID                         0.000 secs
+    Call-Fixup Installer                       0.064 secs
+    Create Address Tables                      0.185 secs
+    Create Address Tables - One Time           0.710 secs
+    Create Function                            0.869 secs
+    Data Reference                             0.627 secs
+    Decompiler Switch Analysis                44.540 secs
+    Demangler Microsoft                        0.015 secs
+    Disassemble                                1.708 secs
+    Disassemble Entry Points                   0.294 secs
+    Embedded Media                             0.049 secs
+    External Entry References                  0.000 secs
+    Function ID                                1.179 secs
+    Function Start Pre Search                  0.020 secs
+    Function Start Search                      0.123 secs
+    Function Start Search After Code           0.071 secs
+    Function Start Search After Data           0.056 secs
+    Function Start Search delayed - One Time   0.007 secs
+    Non-Returning Functions - Discovered       0.477 secs
+    Non-Returning Functions - Known            0.008 secs
+    PDB Universal                              0.001 secs
+    Reference                                  0.804 secs
+    Scalar Operand References                  0.955 secs
+    Shared Return Calls                        0.314 secs
+    Stack                                     11.659 secs
+    Subroutine References                      1.286 secs
+    Subroutine References - One Time           0.009 secs
+    Windows x86 PE Exception Handling          5.941 secs
+    Windows x86 PE RTTI Analyzer               0.000 secs
+    Windows x86 Thread Environment Block (TEB) Analyzer     0.018 secs
+    WindowsResourceReference                   0.422 secs
+    X86 Function Callee Purge                  0.445 secs
+    x86 Constant Reference Analyzer            8.221 secs
+-----------------------------------------------------
+     Total Time   81 secs
+-----------------------------------------------------
+ (AutoAnalysisManager)  
+INFO  REPORT: Analysis succeeded for file: file:///home/daniel/legoracers/orig/LEGORacers2.exe (HeadlessAnalyzer)  
+INFO  REPORT: Execute script: DumpFunctions.java '/home/daniel/legoracers/build/ghidra_functions.txt'  (HeadlessAnalyzer)  
+INFO  SCRIPT: /home/daniel/legoracers/tools/ghidra/DumpFunctions.java (HeadlessAnalyzer)  
+INFO  ANALYZING changes made by post scripts: file:///home/daniel/legoracers/orig/LEGORacers2.exe (HeadlessAnalyzer)  
+INFO  REPORT: Post-analysis succeeded for file: file:///home/daniel/legoracers/orig/LEGORacers2.exe (HeadlessAnalyzer)  
+INFO  /LEGORacers2.exe: file created (daniel) (LocalFileSystem)  
+INFO  REPORT: Save succeeded for: /LEGORacers2.exe (lr2:/LEGORacers2.exe) (HeadlessAnalyzer)  
+INFO  REPORT: Import succeeded (HeadlessAnalyzer)  

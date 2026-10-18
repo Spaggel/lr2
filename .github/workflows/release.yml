@@ -1,0 +1,81 @@
+# Player packages for macOS, Windows and Linux, built only when a tag v* is
+# pushed and published as a GitHub release for that tag.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  macos:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - run: git submodule update --init third_party/SDL3 third_party/zlib
+      - run: brew install ninja
+      - run: tools/package.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LR2-macos
+          path: dist/LR2-macos.zip
+          compression-level: 0
+          retention-days: 14
+
+  linux:
+    # The oldest supported runner, so the binary runs on older glibc too.
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: git submodule update --init third_party/SDL3 third_party/zlib
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build \
+            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev \
+            libxss-dev libxkbcommon-dev libgl-dev libegl-dev libwayland-dev \
+            libdecor-0-dev libpulse-dev libasound2-dev libudev-dev libdbus-1-dev
+      - run: tools/package.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LR2-linux-x86_64
+          path: dist/LR2-linux-x86_64.tar.gz
+          compression-level: 0
+          retention-days: 14
+
+  windows:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: git submodule update --init third_party/SDL3 third_party/zlib
+      - run: sudo apt-get update && sudo apt-get install -y cmake ninja-build
+      - run: tools/build-windows.sh --zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LR2-windows
+          path: dist/LR2-windows-*.zip
+          compression-level: 0
+          retention-days: 14
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [macos, linux, windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: packages
+          merge-multiple: true
+      # The release text is the annotated tag's message (falls back to
+      # generated notes for a lightweight tag).
+      - run: |
+          ref="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$GITHUB_REF_NAME")"
+          if [ "$(jq -r .object.type <<<"$ref")" = tag ]; then
+            gh api "repos/$GITHUB_REPOSITORY/git/tags/$(jq -r .object.sha <<<"$ref")" --jq .message >notes.md
+            gh release create "$GITHUB_REF_NAME" packages/* --repo "$GITHUB_REPOSITORY" \
+              --title "$GITHUB_REF_NAME" --notes-file notes.md
+          else
+            gh release create "$GITHUB_REF_NAME" packages/* --repo "$GITHUB_REPOSITORY" --generate-notes
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}

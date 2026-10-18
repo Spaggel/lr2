@@ -1,0 +1,16 @@
+# Build output and local tooling (regenerable)
+build/native/
+build/windows-*/
+build/release-*/
+dist/
+build/obj/
+build/*.log
+tools/.venv/
+tools/local/
+third_party/build/
+__pycache__/
+# Game files: players supply their own CD (setup copies it into game/),
+# plus saves, savestates and frame dumps written by the game and test runs.
+game/
+orig/
+/*.iso

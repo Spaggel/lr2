@@ -1,0 +1,56 @@
+functions 6617
+noreturn 004ab2a0 004e7b80 0051a468 0051f941 0051f9a8 0051fa2c 0051fa78 0051fa88 0051fa8d 0051face 0051fade 00521a05 005243e4 0052cb90 0052dc10
+unresolved indirect jump at 0040a3be in 0040a3b0: jmp dword ptr [edx + 0x60]
+unresolved indirect jump at 00410336 in 00410330: jmp dword ptr [eax + 8]
+jump table at 00423136: bound unknown, read 4 entries
+jump table at 00427a61: bound unknown, read 10 entries
+jump table at 004288eb: bound unknown, read 4 entries
+jump table at 0042b02a: bound unknown, read 4 entries
+unresolved indirect jump at 004447d8 in 004447d0: jmp dword ptr [eax + 0x34]
+unresolved indirect jump at 004447e8 in 004447e0: jmp dword ptr [eax + 0x34]
+unresolved indirect jump at 00449746 in 00449730: jmp dword ptr [edx + 0x5c]
+unresolved indirect jump at 004718c2 in 004718c0: jmp dword ptr [eax + 0x14]
+jump table at 00482466: bound unknown, read 5 entries
+unresolved indirect jump at 00489858 in 00489850: jmp dword ptr [eax + 0x34]
+unresolved indirect jump at 0048a2a8 in 0048a260: jmp dword ptr [eax + 0x34]
+unresolved indirect jump at 0049a5ec in 0049a490: jmp dword ptr [eax + 8]
+unresolved indirect jump at 0049d018 in 0049d010: jmp dword ptr [eax + 0x74]
+unresolved indirect jump at 0049d028 in 0049d020: jmp dword ptr [eax + 0x78]
+unresolved indirect jump at 004a7cef in 004a7cc0: jmp dword ptr [eax]
+unresolved indirect jump at 004ba128 in 004ba120: jmp dword ptr [eax + 0x40]
+unresolved indirect jump at 004e719a in 004e7080: jmp dword ptr [eax + 8]
+unresolved indirect jump at 0051a4b7 in 0051a48c: jmp eax
+unresolved indirect jump at 0051a4c5 in 0051a4c0: jmp eax
+unresolved indirect jump at 0051a4cc in 0051a4c7: jmp eax
+unresolved indirect jump at 0051a6ec in 0051a682: jmp dword ptr [ebx + 0x18]
+jump table at 0051ae9c: bound unknown, read 8 entries
+jump table at 0051af7f: bound unknown, read 4 entries
+jump table at 0051af12: bound unknown, read 4 entries
+jump table at 0051aef8: bound unknown, read 4 entries
+jump table at 0051aed2: bound unknown, read 4 entries
+unresolved indirect jump at 0051ae94 in 0051ae40: jmp dword ptr [ecx*4 + 0x51af98]
+jump table at 0051b002: bound unknown, read 1 entries
+jump table at 0051b117: bound unknown, read 4 entries
+jump table at 0051b0aa: bound unknown, read 4 entries
+jump table at 0051b078: bound unknown, read 4 entries
+jump table at 0051b04e: bound unknown, read 4 entries
+jump table at 0051b024: bound unknown, read 4 entries
+unresolved indirect jump at 0051d015 in 0051cfb0: jmp dword ptr [ebx]
+unresolved indirect jump at 0051d0a1 in 0051d017: jmp dword ptr [ebx]
+jump table at 005212ec: bound unknown, read 8 entries
+jump table at 005213cf: bound unknown, read 4 entries
+jump table at 00521362: bound unknown, read 4 entries
+jump table at 00521348: bound unknown, read 4 entries
+jump table at 00521322: bound unknown, read 4 entries
+unresolved indirect jump at 005212e4 in 00521290: jmp dword ptr [ecx*4 + 0x5213e8]
+jump table at 00521452: bound unknown, read 1 entries
+jump table at 00521567: bound unknown, read 4 entries
+jump table at 005214fa: bound unknown, read 4 entries
+jump table at 005214c8: bound unknown, read 4 entries
+jump table at 0052149e: bound unknown, read 4 entries
+jump table at 00521474: bound unknown, read 4 entries
+unresolved indirect jump at 004a1c36 in 004a1c30: jmp dword ptr [eax + 0x28]
+unresolved indirect jump at 004a1c46 in 004a1c40: jmp dword ptr [eax + 0x4c]
+unresolved indirect jump at 004a1c56 in 004a1c50: jmp dword ptr [eax + 0x2c]
+unresolved indirect jump at 004a1c66 in 004a1c60: jmp dword ptr [eax + 0x30]
+
