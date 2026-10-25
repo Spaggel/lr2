@@ -32,6 +32,9 @@ OVERRIDES = {
 
 WRAPS = {
     0x0040ad60: 'lr2pad_race_bindings',   # builds a racer's input bindings
+    0x00499500: 'lr2_movie_play',         # plays a movie with DirectShow
+    0x00433680: 'lr2_glyphs_load',        # loads the menu text icons (button prompts)
+    0x00433700: 'lr2_glyphs_free',        # releases them
 }
 
 

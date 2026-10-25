@@ -122,6 +122,7 @@ for arch in "${archs[@]}"; do
     # they are only refreshed when something changed.
     [ -d "HD TEXTURES" ] || { echo "error: HD TEXTURES folder missing" >&2; exit 1; }
     sync_dir "HD TEXTURES" "$dist/HD TEXTURES"
+    sync_dir "PAD GLYPHS" "$dist/PAD GLYPHS"
     if [ $zip = 1 ]; then
         rm -f "$dist.zip"
         (cd dist && python3 -I -m zipfile -c "LR2-windows-$label.zip" "LR2-windows-$label")

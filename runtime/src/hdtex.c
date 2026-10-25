@@ -16,6 +16,9 @@
  *   - reads of GameData.gtc past its real end are filled from the pack
  *     files (ReadFile calls hd_fill when a read comes up short).
  * The originals on disk are never modified.
+ *
+ * The same mechanism serves the "PAD GLYPHS" folder (the menus' gamepad
+ * button icons, see glyphs.c), which is used with or without the HD pack.
  */
 #define _GNU_SOURCE
 #include "rt.h"
@@ -114,12 +117,12 @@ static inline uint32_t rd32(const uint8_t *p) { return (uint32_t)p[0] | p[1] << 
 static inline void wr32(uint8_t *p, uint32_t v) { p[0] = (uint8_t)v; p[1] = (uint8_t)(v >> 8); p[2] = (uint8_t)(v >> 16); p[3] = (uint8_t)(v >> 24); }
 
 /* ------------------------------------------------------------------ init */
-static bool find_pack(const char *opt, char *out, size_t sz) {
+static bool find_pack(const char *opt, const char *folder, char *out, size_t sz) {
     if (opt) {
         snprintf(out, sz, "%s", opt);
     } else {
-        /* Default: an "HD TEXTURES" folder next to the game files, on the
-           CD, in the current directory or next to this program. */
+        /* Default: a folder of that name next to the game files, on the CD,
+           in the current directory or next to this program. */
         char base[1024];
         snprintf(base, sizeof base, "%s", SDL_GetBasePath() ? SDL_GetBasePath() : ".");
         size_t bl = strlen(base);
@@ -131,7 +134,7 @@ static bool find_pack(const char *opt, char *out, size_t sz) {
             DIR *d = opendir(roots[i]);
             struct dirent *e;
             while (d && (e = readdir(d))) {
-                if (!strcasecmp(e->d_name, "HD TEXTURES")) {
+                if (!strcasecmp(e->d_name, folder)) {
                     snprintf(out, sz, "%s/%s", roots[i], e->d_name);
                     found = true;
                     break;
@@ -152,10 +155,17 @@ static bool find_pack(const char *opt, char *out, size_t sz) {
     return true;
 }
 
-void hd_init(const char *opt_dir) {
-    char dir[1100];
-    if (!find_pack(opt_dir, dir, sizeof dir))
+void hd_init(const char *opt_dir, bool no_hd) {
+    char dirs[2][1100], dir[2300] = "";
+    int ndirs = 0;
+    if (find_pack(NULL, "PAD GLYPHS", dirs[ndirs], sizeof dirs[0]))
+        ndirs++;
+    if (!no_hd && find_pack(opt_dir, "HD TEXTURES", dirs[ndirs], sizeof dirs[0]))
+        ndirs++;
+    if (!ndirs)
         return;
+    for (int i = 0; i < ndirs; i++)
+        snprintf(dir + strlen(dir), sizeof dir - strlen(dir), "%s%s", i ? " and " : "", dirs[i]);
     char list_host[1200], chunks_host[1200], gtc_host[1200];
     path_to_host("C:\\LR2\\FileList.Inf", list_host, sizeof list_host);
     path_to_host("C:\\LR2\\Compress.Inf", chunks_host, sizeof chunks_host);
@@ -167,7 +177,8 @@ void hd_init(const char *opt_dir) {
         goto fail;
     }
 
-    scan_dir(dir, "");
+    for (int i = 0; i < ndirs; i++)
+        scan_dir(dirs[i], "");
     qsort(s_scan, s_nscan, sizeof *s_scan, cmp_entry);
 
     /* The appended region starts after the last original chunk, both in the

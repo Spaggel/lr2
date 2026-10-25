@@ -26,6 +26,7 @@ _Static_assert(PADB_COUNT <= 32, "DIJOYSTATE has 32 buttons");
 /* dinput8.c */
 bool di_key_down(uint8_t dik);
 int di_pad_game_index(int slot);
+bool di_using_pad(void);         /* last input came from a gamepad */
 
 /* lr2pad.c, called with the DirectInput lock held */
 bool lr2pad_button(SDL_Gamepad *gp, int slot, int button);

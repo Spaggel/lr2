@@ -16,7 +16,11 @@ no emulator, and it runs on ARM64 Macs.
 On top of the original game it adds:
 
 - savestates (10 slots, also from a controller);
-- gamepad support through SDL (Xbox, PlayStation, Switch Pro and other pads);
+- gamepad support through SDL (Xbox, PlayStation, Switch Pro and other pads),
+  with pads that can be plugged in while the game runs and gamepad button
+  prompts in the menus;
+- the intro and world movies (MPEG-1, played with pl_mpeg), skippable with
+  any button;
 - an HD texture pack, used in place of the original textures.
 
 | Platform | Status |
@@ -252,11 +256,18 @@ resolutions are under Game Options; the choice is saved. Use `--windowed`
 confirms and Esc goes back. The other controls are listed, and can be
 changed, under Game Options in the game.
 
-**Controller:** connect the pad before starting the game (the game only
-looks for controllers when it starts). Any pad SDL knows works (Xbox,
-PlayStation, Switch Pro, ...); buttons are named by their Xbox position
-below. The first pad drives player 1, a second pad player 2, and the
-keyboard keeps working alongside.
+**Controller:** any pad SDL knows works (Xbox, PlayStation, Switch Pro,
+...); buttons are named by their Xbox position below. Pads can be plugged
+in and out while the game runs. The first pad drives player 1, a second
+pad player 2, and the keyboard keeps working alongside; on a handheld
+(Handheld Daemon or a Steam Deck) an external pad comes first and the
+built-in controls drive player 2. While a pad is in use, the menus' button
+prompts show A, B and the d-pad instead of Enter, Esc and the arrow keys;
+pressing a key switches them back (`LR2_PROMPTS=pad` or `keys` fixes the
+choice).
+
+**Movies:** Esc, Enter, Space, or A, B or Start skips a movie.
+`--no-intro` (or `LR2_NO_INTRO=1`) starts without the three splash movies.
 
 | Race | Controller | Menus | Controller |
 |---|---|---|---|
@@ -323,6 +334,7 @@ lr2 [options]
                game dir, CD dir, current dir or next to lr2, if there is one)
   --no-hd      use the original textures
   --windowed   run in a window instead of full screen
+  --no-intro   leave out the splash movies at start
   --log N      log level 0-4 (default 2)
 ```
 

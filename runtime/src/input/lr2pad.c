@@ -2,7 +2,7 @@
 
    The game binds input per player from a control config that defaults to
    the keyboard, so out of the box a gamepad only worked in the menus.  When
-   player N (N < 2) has a keyboard config and gamepad N is connected, the
+   player N (N < 2) has a keyboard config, the
    race bindings are replaced (lr2pad_race_bindings, which wraps the game's
    binding builder at 0x40ad60) with ones that read the gamepad's virtual
    steering axis and race-action buttons.  Those merge the gamepad with the
@@ -69,10 +69,10 @@ static bool player_steer_key(int player, int right) {
     return k && di_key_down(k);
 }
 
-static bool btn(SDL_Gamepad *gp, SDL_GamepadButton b) { return SDL_GetGamepadButton(gp, b); }
-static bool trig(SDL_Gamepad *gp, SDL_GamepadAxis a) {
-    return SDL_GetGamepadAxis(gp, a) > PAD_TRIGGER_THRESHOLD;
-}
+/* gp is NULL while no pad is connected for the player: keys only. */
+static bool btn(SDL_Gamepad *gp, SDL_GamepadButton b) { return gp && SDL_GetGamepadButton(gp, b); }
+static int axis(SDL_Gamepad *gp, SDL_GamepadAxis a) { return gp ? SDL_GetGamepadAxis(gp, a) : 0; }
+static bool trig(SDL_Gamepad *gp, SDL_GamepadAxis a) { return axis(gp, a) > PAD_TRIGGER_THRESHOLD; }
 
 static bool race_pad(SDL_Gamepad *gp, int action) {
     switch (action) {
@@ -93,8 +93,8 @@ static bool race_pad(SDL_Gamepad *gp, int action) {
 #define RSTICK_THRESHOLD 16000
 
 bool lr2pad_button(SDL_Gamepad *gp, int slot, int button) {
-    int rx = SDL_GetGamepadAxis(gp, SDL_GAMEPAD_AXIS_RIGHTX);
-    int ry = SDL_GetGamepadAxis(gp, SDL_GAMEPAD_AXIS_RIGHTY);
+    int rx = axis(gp, SDL_GAMEPAD_AXIS_RIGHTX);
+    int ry = axis(gp, SDL_GAMEPAD_AXIS_RIGHTY);
     switch (button) {
     case PADB_RS_DOWN: return ry > RSTICK_THRESHOLD;
     case PADB_RS_UP: return ry < -RSTICK_THRESHOLD;
@@ -122,7 +122,7 @@ static struct {
 float lr2pad_steer(SDL_Gamepad *gp, int slot) {
     if (slot < 0 || slot >= (int)(sizeof s_steer / sizeof *s_steer))
         return 0.0f;
-    float x = SDL_GetGamepadAxis(gp, SDL_GAMEPAD_AXIS_LEFTX) / 32767.0f;
+    float x = axis(gp, SDL_GAMEPAD_AXIS_LEFTX) / 32767.0f;
     float ax = SDL_fabsf(x);
     ax = ax <= STEER_DEADZONE ? 0.0f : SDL_min((ax - STEER_DEADZONE) / (1.0f - STEER_DEADZONE), 1.0f);
     x = x < 0 ? -ax : ax;
