@@ -123,10 +123,19 @@ typedef struct {
     SDL_JoystickID id;
     char name[128];
     uint16_t vid, pid;
+    bool builtin;             /* a handheld's own controls: used after external pads */
 } Pad;
 
 static pthread_mutex_t s_lock = PTHREAD_MUTEX_INITIALIZER;
 static Pad s_pads[MAX_PADS];
+/* The game is always shown GAME_PADS joysticks, one per player, whatever is
+   connected: it lists joysticks only once, at startup.  Each stands for
+   the physical pad s_assign[] gives it (-1: none, so it reads as centred),
+   reassigned whenever a pad connects or disconnects, external pads first
+   and a handheld's built-in controls after them.  So a pad plugged in
+   later drives player 1 at once, and the built-in pad becomes player 2. */
+#define GAME_PADS 2
+static int s_assign[GAME_PADS] = {-1, -1};
 static DiDevice *s_devs[32];
 static int s_ndevs;
 static uint32_t s_seq, s_create_seq;
@@ -163,10 +172,27 @@ static void pad_guid(int slot, Guid *g) {
     memcpy(g->d4, "LR2JOYST", 8);
 }
 
+/* The physical pad behind game joystick slot, or NULL. */
+static Pad *game_pad(int slot) {
+    int p = slot >= 0 && slot < GAME_PADS ? s_assign[slot] : -1;
+    return p >= 0 && s_pads[p].gp ? &s_pads[p] : NULL;
+}
+
+static const char *game_pad_name(int slot) {
+    static const char *names[GAME_PADS] = {"Gamepad 1", "Gamepad 2"};
+    Pad *p = game_pad(slot);
+    return p ? p->name : names[slot];
+}
+
+static uint32_t game_pad_pidvid(int slot) {
+    Pad *p = game_pad(slot);
+    return p ? (uint32_t)p->pid << 16 | p->vid : 0;
+}
+
 static void pad_product_guid(int slot, Guid *g) {
     /* DirectInput's {PIDVID-0000-0000-0000-504944564944} form */
     memset(g, 0, sizeof *g);
-    g->d1 = (uint32_t)s_pads[slot].pid << 16 | s_pads[slot].vid;
+    g->d1 = game_pad_pidvid(slot);
     memcpy(g->d4, "\0\0PIDVID", 8);
 }
 
@@ -240,7 +266,8 @@ static int count_type(DiDevice *d, uint32_t mask) {
 
 /* ------------------------------------------------------- live sampling */
 static SDL_Gamepad *dev_pad(DiDevice *d) {
-    return d->kind == DEV_PAD ? s_pads[d->pad_slot].gp : NULL;
+    Pad *p = d->kind == DEV_PAD ? game_pad(d->pad_slot) : NULL;
+    return p ? p->gp : NULL;
 }
 
 static int32_t scale_axis(const Obj *o, int v /* -32768..32767 */) {
@@ -305,12 +332,12 @@ static uint32_t obj_value(DiDevice *d, Obj *o) {
     case SRC_PAXIS:
         return (uint32_t)scale_axis(o, gp ? stick_with_dpad(gp, o->idx) : 0);
     case SRC_PSTEER: {
-        float f = gp ? lr2pad_steer(gp, d->pad_slot) : 0.0f;
+        float f = lr2pad_steer(gp, d->pad_slot);   /* also the player's keys */
         double mid = ((double)o->min + o->max) / 2.0, half = ((double)o->max - o->min) / 2.0;
         return (uint32_t)(int32_t)SDL_lround(mid + f * half);
     }
     case SRC_PVIRT:
-        return gp && lr2pad_button(gp, d->pad_slot, o->idx) ? 0x80 : 0;
+        return lr2pad_button(gp, d->pad_slot, o->idx) ? 0x80 : 0;
     case SRC_PTRIGGER:
         return (uint32_t)scale_trigger(o, gp ? SDL_GetGamepadAxis(gp, (SDL_GamepadAxis)o->idx) : 0);
     case SRC_PBUTTON:
@@ -356,6 +383,55 @@ static int pad_slot_of(SDL_JoystickID id) {
     return -1;
 }
 
+/* A handheld's own controls: Handheld Daemon's virtual pad (its evdev
+   device's phys is "phys-hhd-main") or a Steam Deck's. */
+static bool pad_builtin(SDL_Gamepad *gp) {
+    if (SDL_GetGamepadVendor(gp) == 0x28de && SDL_GetGamepadProduct(gp) == 0x1205)
+        return true;
+    const char *path = SDL_GetGamepadPath(gp);
+    const char *ev = path ? strstr(path, "/event") : NULL;
+    if (!ev)
+        return false;
+    char sys[96], phys[64] = "";
+    snprintf(sys, sizeof sys, "/sys/class/input%s/device/phys", ev);
+    FILE *f = fopen(sys, "r");
+    if (f) {
+        if (!fgets(phys, sizeof phys, f))
+            phys[0] = 0;
+        fclose(f);
+    }
+    return strstr(phys, "hhd") != NULL;
+}
+
+/* Gives the game's joysticks to the connected pads: external ones first,
+   each group in the order the pads connected. */
+static void pad_assign(void) {
+    int order[MAX_PADS], n = 0;
+    for (int pass = 0; pass < 2; pass++) {
+        int best;
+        do {
+            best = -1;
+            for (int i = 0; i < MAX_PADS; i++) {
+                bool taken = false;
+                for (int k = 0; k < n; k++)
+                    taken |= order[k] == i;
+                if (!s_pads[i].gp || taken || s_pads[i].builtin != (pass == 1))
+                    continue;
+                if (best < 0 || s_pads[i].id < s_pads[best].id)
+                    best = i;
+            }
+            if (best >= 0)
+                order[n++] = best;
+        } while (best >= 0);
+    }
+    for (int v = 0; v < GAME_PADS; v++) {
+        int p = v < n ? order[v] : -1;
+        if (p != s_assign[v])
+            LOGI("player %d: %s", v + 1, p >= 0 ? s_pads[p].name : "no gamepad");
+        s_assign[v] = p;
+    }
+}
+
 static void pad_open(SDL_JoystickID id) {
     if (pad_slot_of(id) >= 0)
         return;
@@ -373,7 +449,10 @@ static void pad_open(SDL_JoystickID id) {
         snprintf(s_pads[i].name, sizeof s_pads[i].name, "%s", n ? n : "Gamepad");
         s_pads[i].vid = SDL_GetGamepadVendor(gp);
         s_pads[i].pid = SDL_GetGamepadProduct(gp);
-        LOGI("gamepad %d: %s (%04x:%04x)", i, s_pads[i].name, s_pads[i].vid, s_pads[i].pid);
+        s_pads[i].builtin = pad_builtin(gp);
+        LOGI("gamepad %d: %s (%04x:%04x)%s", i, s_pads[i].name, s_pads[i].vid, s_pads[i].pid,
+             s_pads[i].builtin ? ", built in" : "");
+        pad_assign();
         return;
     }
 }
@@ -385,13 +464,14 @@ static void pad_close(SDL_JoystickID id) {
     LOGI("gamepad %d disconnected", i);
     SDL_CloseGamepad(s_pads[i].gp);
     s_pads[i].gp = NULL;
+    pad_assign();
 }
 
 /* Previous digital/analog values for gamepad buffered events. */
-static void pad_event(int slot, int src, int idx) {
+static void pad_event(int phys, int src, int idx) {
     for (int k = 0; k < s_ndevs; k++) {
         DiDevice *d = s_devs[k];
-        if (d->kind != DEV_PAD || d->pad_slot != slot)
+        if (d->kind != DEV_PAD || d->pad_slot >= GAME_PADS || s_assign[d->pad_slot] != phys)
             continue;
         Obj *o = find_src(d, src, idx);
         if (o)
@@ -524,7 +604,7 @@ static void fill_devinst(uint32_t p, int kind, int slot) {
     } else {
         pad_guid(slot, &inst);
         pad_product_guid(slot, &prod);
-        name = s_pads[slot].name;
+        name = game_pad_name(slot);
         type = DI8DEVTYPE_GAMEPAD | 2u << 8 | DIDEVTYPE_HID;
         usage = 5;
     }
@@ -691,7 +771,7 @@ static uint32_t prop(DiDevice *d, uint32_t guid, uint32_t ph, bool set) {
         return set ? DIERR_UNSUPPORTED : DI_OK;
     case DIPROP_VIDPID:
         if (!set)
-            put32(data, d->kind == DEV_PAD ? (uint32_t)s_pads[d->pad_slot].pid << 16 | s_pads[d->pad_slot].vid : 0);
+            put32(data, d->kind == DEV_PAD ? game_pad_pidvid(d->pad_slot) : 0);
         return set ? DIERR_UNSUPPORTED : DI_OK;
     case DIPROP_INSTANCENAME:
     case DIPROP_PRODUCTNAME:
@@ -699,7 +779,7 @@ static uint32_t prop(DiDevice *d, uint32_t guid, uint32_t ph, bool set) {
         if (set)
             return DIERR_UNSUPPORTED;
         /* DIPROPSTRING: WCHAR wsz[260] */
-        const char *s = o ? o->name : d->kind == DEV_PAD ? s_pads[d->pad_slot].name
+        const char *s = o ? o->name : d->kind == DEV_PAD ? game_pad_name(d->pad_slot)
                           : d->kind == DEV_MOUSE ? "Mouse" : "Keyboard";
         uint8_t *w = G2H(data);
         int i = 0;
@@ -960,7 +1040,7 @@ static void DI_QueryInterface(CPU *c) {
 
 static int pad_slot_from_guid(const Guid *g) {
     Guid t;
-    for (int i = 0; i < MAX_PADS; i++) {
+    for (int i = 0; i < GAME_PADS; i++) {
         pad_guid(i, &t);
         if (guid_eq(&t, g))
             return i;
@@ -980,7 +1060,7 @@ static void DI_CreateDevice(CPU *c) {
         kind = DEV_KEYBOARD;
     else if (guid_eq(&g, &GUID_SysMouse))
         kind = DEV_MOUSE;
-    else if ((slot = pad_slot_from_guid(&g)) >= 0 && s_pads[slot].gp)
+    else if ((slot = pad_slot_from_guid(&g)) >= 0)
         kind = DEV_PAD;
     else {
         pthread_mutex_unlock(&s_lock);
@@ -999,7 +1079,7 @@ static void DI_CreateDevice(CPU *c) {
         s_devs[s_ndevs++] = d;
     pthread_mutex_unlock(&s_lock);
     LOGI("DirectInput CreateDevice(%s) -> %s", gs,
-         kind == DEV_KEYBOARD ? "keyboard" : kind == DEV_MOUSE ? "mouse" : s_pads[slot].name);
+         kind == DEV_KEYBOARD ? "keyboard" : kind == DEV_MOUSE ? "mouse" : game_pad_name(slot));
     uint32_t vt = com_vtbl("IDirectInputDevice8A", s_dev_vtbl, 32);
     put32(ARG(2), com_wrap(&d->com, vt, 0));
     RET(4, DI_OK);
@@ -1007,14 +1087,14 @@ static void DI_CreateDevice(CPU *c) {
 
 /* The game numbers its joysticks in the order it created them (it creates
    one per device EnumDevices lists, at startup).  Returns the number of the
-   joystick for gamepad slot, or -1 if the game has none for it or the pad
-   is gone. */
+   joystick for player slot, or -1 if the game has none for it.  The
+   joystick exists whether or not a pad is connected for it. */
 int di_pad_game_index(int slot) {
     int idx = -1;
     pthread_mutex_lock(&s_lock);
     DiDevice *mine = NULL;
     for (int i = 0; i < s_ndevs; i++)
-        if (s_devs[i]->kind == DEV_PAD && s_devs[i]->pad_slot == slot && s_pads[slot].gp)
+        if (s_devs[i]->kind == DEV_PAD && s_devs[i]->pad_slot == slot)
             mine = s_devs[i];
     if (mine) {
         idx = 0;
@@ -1042,16 +1122,15 @@ static bool class_matches(uint32_t cls, int kind) {
 static void DI_EnumDevices(CPU *c) {
     uint32_t cls = ARG(1), cb = ARG(2), ref = ARG(3);
     uint32_t di = gcalloc(580);
-    struct { int kind, slot; } list[2 + MAX_PADS];
+    struct { int kind, slot; } list[2 + GAME_PADS];
     int n = 0;
     pthread_mutex_lock(&s_lock);
     for (int k = DEV_KEYBOARD; k <= DEV_MOUSE; k++)
         if (class_matches(cls, k))
             list[n].kind = k, list[n].slot = 0, n++;
     if (class_matches(cls, DEV_PAD))
-        for (int i = 0; i < MAX_PADS; i++)
-            if (s_pads[i].gp)
-                list[n].kind = DEV_PAD, list[n].slot = i, n++;
+        for (int i = 0; i < GAME_PADS; i++)
+            list[n].kind = DEV_PAD, list[n].slot = i, n++;
     pthread_mutex_unlock(&s_lock);
     LOGI("DirectInput EnumDevices(class %x): %d device(s)", cls, n);
     for (int i = 0; i < n; i++) {
@@ -1071,7 +1150,7 @@ static void DI_GetDeviceStatus(CPU *c) {
     if (guid_eq(&g, &GUID_SysKeyboard) || guid_eq(&g, &GUID_SysMouse))
         RET(2, DI_OK);
     int slot = pad_slot_from_guid(&g);
-    RET(2, slot >= 0 && s_pads[slot].gp ? DI_OK : 1u /* DI_NOTATTACHED */);
+    RET(2, slot >= 0 ? DI_OK : 1u /* DI_NOTATTACHED */);
 }
 
 static void DI_RunControlPanel(CPU *c) { RET(3, DI_OK); }
@@ -1145,7 +1224,7 @@ static ComObj *dev_snap_load(SnapBuf *b) {
     d->buf_size = v[6];
     d->event_handle = v[7];
     sb_get(b, d->mouse_abs, sizeof d->mouse_abs);
-    if (d->kind < DEV_KEYBOARD || d->kind > DEV_PAD || d->pad_slot < 0 || d->pad_slot >= MAX_PADS ||
+    if (d->kind < DEV_KEYBOARD || d->kind > DEV_PAD || d->pad_slot < 0 || d->pad_slot >= GAME_PADS ||
         d->buf_size > 0x100000) {
         free(d);
         return NULL;
