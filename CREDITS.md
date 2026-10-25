@@ -31,6 +31,12 @@ blurry/noisy)" by dorpz**, published on Rock Raiders United:
 <https://rockraidersunited.com/files/lego-racers-2/higher-resolution-textures-upscaled-less-blurrynoisy-r335/>.
 Many thanks to dorpz for making it freely available.
 
+## Gamepad button glyphs
+
+`PAD GLYPHS/` (the A, B and d-pad icons in the menus' button prompts) is
+drawn by `tools/make_pad_glyphs.py` for this project, under its MIT
+license.
+
 ## Libraries in the game
 
 Linked into every build (`lr2`, `lr2.exe`, the macOS app):
@@ -42,6 +48,7 @@ Linked into every build (`lr2`, `lr2.exe`, the macOS app):
 | ↳ yuv2rgb, bundled in SDL | Adrien Descamps | BSD-3-Clause |
 | ↳ stb_image, bundled in SDL | Sean Barrett and contributors | Public domain / MIT |
 | [zlib](https://zlib.net/) (`third_party/zlib`) | Jean-loup Gailly and Mark Adler | zlib |
+| [pl_mpeg](https://github.com/phoboslab/pl_mpeg) (`third_party/pl_mpeg`, the movies) | Dominic Szablewski | MIT |
 
 Windows builds also statically link parts of the toolchain's runtime:
 

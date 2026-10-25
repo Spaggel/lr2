@@ -4,7 +4,7 @@
 # for the player's own CD and copies its files into game/ next to itself).
 #
 #   macOS: dist/LR2-macos.zip               LEGO Racers 2.app, arm64 + x86_64
-#   Linux: dist/LR2-linux-<arch>.tar.gz     lr2, HD TEXTURES/
+#   Linux: dist/LR2-linux-<arch>.tar.gz     lr2, HD TEXTURES/, PAD GLYPHS/
 #
 # Windows packages come from tools/build-windows.sh.  Needs cmake, ninja and
 # a C compiler (on Linux also SDL3's build dependencies, see README.md).
@@ -59,7 +59,7 @@ if [ "$label" = macos ]; then
     mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
     cp "$build/lr2" "$app/Contents/MacOS/"
     cp runtime/res/lr2.icns "$app/Contents/Resources/"
-    cp -R "HD TEXTURES" "$app/Contents/Resources/"
+    cp -R "HD TEXTURES" "PAD GLYPHS" "$app/Contents/Resources/"
     cat >"$app/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -82,7 +82,7 @@ EOF
     out="dist/LR2-$label.zip"
 else
     cp "$build/lr2" "$dist/"
-    cp -R "HD TEXTURES" "$dist/"
+    cp -R "HD TEXTURES" "PAD GLYPHS" "$dist/"
     tar -C dist -czf "dist/LR2-$label.tar.gz" "LR2-$label"
     out="dist/LR2-$label.tar.gz"
 fi

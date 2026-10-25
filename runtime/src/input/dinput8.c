@@ -143,6 +143,11 @@ static bool s_hooked;
 /* Keyboard state by DIK code, fed from key events (so injected events
    count too) and cleared when the window loses focus. */
 static uint8_t s_keys[256];
+/* Whether the last input came from a gamepad rather than the keyboard (for
+   the menus' button prompts, glyphs.c).  A pad present at startup counts. */
+static bool s_last_pad;
+
+bool di_using_pad(void) { return __atomic_load_n(&s_last_pad, __ATOMIC_RELAXED); }
 
 /* Gamepad buttons in DirectInput order (see lr2pad.h: Start is button 8,
    where the game expects its pause button), then the triggers as buttons,
@@ -500,6 +505,8 @@ static bool di_event_hook(const SDL_Event *e) {
         uint8_t dik = key_sdl_to_dik(e->key.scancode);
         if (dik)
             s_keys[dik] = e->key.down ? 0x80 : 0;
+        if (e->key.down)
+            __atomic_store_n(&s_last_pad, false, __ATOMIC_RELAXED);
         for (int k = 0; k < s_ndevs; k++) {
             Obj *o;
             if (s_devs[k]->kind == DEV_KEYBOARD && dik && (o = find_src(s_devs[k], SRC_KEY, dik)))
@@ -545,6 +552,8 @@ static bool di_event_hook(const SDL_Event *e) {
             break;
         int a = e->gaxis.axis;
         bool trig = a == SDL_GAMEPAD_AXIS_LEFT_TRIGGER || a == SDL_GAMEPAD_AXIS_RIGHT_TRIGGER;
+        if (e->gaxis.value > 16000 || e->gaxis.value < -16000)
+            __atomic_store_n(&s_last_pad, true, __ATOMIC_RELAXED);
         pad_event(slot, trig ? SRC_PTRIGGER : SRC_PAXIS, a);
         break;
     }
@@ -554,6 +563,8 @@ static bool di_event_hook(const SDL_Event *e) {
         if (slot < 0)
             break;
         int b = e->gbutton.button;
+        if (e->gbutton.down)
+            __atomic_store_n(&s_last_pad, true, __ATOMIC_RELAXED);
         if (b >= SDL_GAMEPAD_BUTTON_DPAD_UP && b <= SDL_GAMEPAD_BUTTON_DPAD_RIGHT) {
             pad_event(slot, SRC_PPOV, 0);
             pad_event(slot, SRC_PAXIS, b <= SDL_GAMEPAD_BUTTON_DPAD_DOWN ? SDL_GAMEPAD_AXIS_LEFTY
@@ -579,6 +590,7 @@ static void ensure_hook(void) {
     for (int i = 0; i < n; i++)
         pad_open(ids[i]);
     SDL_free(ids);
+    s_last_pad = n > 0;
 }
 
 /* ------------------------------------------------- device descriptions */

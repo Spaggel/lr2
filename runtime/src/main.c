@@ -188,8 +188,7 @@ int main(int argc, char **argv) {
     LOGI("game dir: %s", g_game_dir);
     LOGI("cd dir:   %s", g_cd_dir);
     LOGI("save dir: %s", g_save_dir);
-    if (!no_hd)
-        hd_init(hd_dir);
+    hd_init(hd_dir, no_hd);
 
     install_crash_handlers();
     mem_init();

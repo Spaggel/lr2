@@ -122,7 +122,7 @@ bool path_to_host(const char *win, char *out, size_t outsz);
 void mkdir_p(const char *host);
 
 /* HD texture pack (hdtex.c): served from inside the game archive. */
-void hd_init(const char *dir);        /* dir NULL: look for "HD TEXTURES" */
+void hd_init(const char *dir, bool no_hd);  /* dir NULL: look for "HD TEXTURES"; "PAD GLYPHS" always */
 int hd_open(const char *host, int flags);                 /* open() */
 size_t hd_fill(int fd, uint8_t *buf, size_t n, uint64_t off); /* after a short read */
 bool hd_size(int fd, uint64_t *size);

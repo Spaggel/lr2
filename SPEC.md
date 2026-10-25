@@ -163,9 +163,16 @@ The heap is a boundary-tag allocator whose metadata lives in guest memory.
     from the table at `0x53060c` (`{0,4,5,2,6,7,8,1,3}`); keyboard arrows,
     then actions 0-6 = Enter, Esc, numpad 2/8/4/6, Esc. Action 0 confirms,
     1 goes back, 6 is the pause/escape button (`0x42b370` returns it).
-- Movies: `CoCreateInstance(CLSID_FilterGraph)` returns
-  `REGDB_E_CLASSNOTREG`, so the game skips them. DirectMusic has not been
-  seen being called.
+- Movies: the game's DirectShow player `0x499500` (cdecl `(path,
+  skippable)`, called by the movie object's `Play` at `0x49a3e0`) is
+  wrapped by `lr2_movie_play` (`runtime/src/video/movie.c`), which plays
+  the MPEG-1 file with pl_mpeg. DirectMusic has not been seen being called.
+- Button prompts: icon tokens in texts (`~~X`, `~~T`, `~~UPDOWN`, ...)
+  come from the icon table at `0x53fcf0`; `0x433680` / `0x433700` load and
+  release the icons and are wrapped by `runtime/src/glyphs.c`, which
+  switches the handles at icon entry `+0x20` between the keyboard icons
+  and gamepad glyphs (`PAD GLYPHS/`, served under the unused PS2 icon
+  names) after each frame.
 
 ## Status
 
@@ -499,10 +506,13 @@ which a load rewinds, and each command fires once.
   two pads, and the savestate combo (Back+LB/RB). Check the game's
   joystick options screen with the new button names. Menu actions 2-5
   (keyboard numpad 2/8/4/6) are mapped to the right stick but where the
-  game uses them is not known. Pads connected after startup are not seen
-  by the game.
-- **Movies:** DirectShow `CLSID_FilterGraph` through `com_register_class`,
-  possibly decoding with pl_mpeg. DirectMusic if it is ever called.
+  game uses them is not known. The game always gets two joysticks (one
+  per player); `dinput8.c` maps them to the connected pads, external pads
+  before a handheld's built-in ones, and remaps on hot-plug.
+- **Movies:** volume follows the system, not the game's music volume.
+  DirectMusic if it is ever called.
+- **Prompts:** the race tutorial's `~~ACC`/`~~BRK`/`~~REV` key names and
+  the car builder's "Numpad" hints still name keys.
 - **D3D:** P8 textures and `convert_level` in `resources.c`, which are not
   yet advertised.
 - **macOS:**

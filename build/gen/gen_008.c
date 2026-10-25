@@ -451,7 +451,10 @@ L_00433640:
     c->esp += 4; return;
 }
 
-void f_00433680(CPU *restrict c) {
+void f_00433680_orig(CPU *restrict c);
+void lr2_glyphs_load(CPU *c, void (*orig)(CPU *restrict c));
+void f_00433680(CPU *restrict c) { lr2_glyphs_load(c, f_00433680_orig); }
+void f_00433680_orig(CPU *restrict c) {
     uint8_t *const m = g_mem; (void)m;
     uint32_t zf = 0, sf = 0, of = 0;
 L_00433680:
@@ -539,7 +542,10 @@ L_004336f5:
     c->esp += 4; return;
 }
 
-void f_00433700(CPU *restrict c) {
+void f_00433700_orig(CPU *restrict c);
+void lr2_glyphs_free(CPU *c, void (*orig)(CPU *restrict c));
+void f_00433700(CPU *restrict c) { lr2_glyphs_free(c, f_00433700_orig); }
+void f_00433700_orig(CPU *restrict c) {
     uint8_t *const m = g_mem; (void)m;
     uint32_t sf = 0, of = 0;
 L_00433700:
