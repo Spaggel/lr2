@@ -1185,7 +1185,10 @@ L_004994f0:
     c->esp += 4; return;
 }
 
-void f_00499500(CPU *restrict c) {
+void f_00499500_orig(CPU *restrict c);
+void lr2_movie_play(CPU *c, void (*orig)(CPU *restrict c));
+void f_00499500(CPU *restrict c) { lr2_movie_play(c, f_00499500_orig); }
+void f_00499500_orig(CPU *restrict c) {
     uint8_t *const m = g_mem; (void)m;
     uint32_t zf = 0;
 L_00499500:

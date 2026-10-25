@@ -41,7 +41,8 @@ target_include_directories(lr2_zlib PUBLIC "${CMAKE_BINARY_DIR}/zlib" "${ZLIB_DI
 target_compile_options(lr2_zlib PRIVATE -O2 -w)
 
 add_executable(lr2 ${RUNTIME_SOURCES} ${GEN_SOURCES})
-target_include_directories(lr2 PRIVATE runtime/include runtime/src ${GEN_DIR})
+target_include_directories(lr2 PRIVATE runtime/include runtime/src ${GEN_DIR}
+  third_party/pl_mpeg)
 target_compile_options(lr2 PRIVATE -Wall -Wno-unused-function -fno-strict-aliasing)
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
   target_compile_options(lr2 PRIVATE -Wno-format-truncation)

@@ -126,6 +126,7 @@ static void usage(void) {
             "               game dir, CD dir or current dir, if there is one)\n"
             "  --no-hd      use the original textures\n"
             "  --windowed   run in a window instead of full screen\n"
+            "  --no-intro   leave out the splash movies at start\n"
             "  --setup [ISO|DIR]  copy the game files from your CD (a disc image, the\n"
             "               CD or a copy of it) into the game folder next to this program\n"
             "  --log N      log level 0-4 (default 2)\n");
@@ -153,6 +154,8 @@ int main(int argc, char **argv) {
                 setup_src = argv[++i];
         } else if (!strcmp(argv[i], "--windowed"))
             g_windowed = true;
+        else if (!strcmp(argv[i], "--no-intro"))
+            g_no_intro = true;
         else if (!strcmp(argv[i], "--log") && i + 1 < argc)
             g_log_level = atoi(argv[++i]);
         else if (!strcmp(argv[i], "--help"))

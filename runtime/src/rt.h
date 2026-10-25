@@ -25,6 +25,7 @@
 /* -------------------------------------------------------------- logging */
 extern int g_log_level;
 extern bool g_windowed;     /* --windowed or LR2_WINDOWED: no full screen */
+extern bool g_no_intro;     /* --no-intro or LR2_NO_INTRO: no splash movies */
 void rt_log(int level, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
 #define LOGE(...) rt_log(0, __VA_ARGS__)
 #define LOGW(...) rt_log(1, __VA_ARGS__)
